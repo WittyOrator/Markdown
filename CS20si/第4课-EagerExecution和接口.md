@@ -33,5 +33,147 @@ Eager execution是一个支持GPU加速和自动微分的类Numpy数值计算库
 	print(m)  # No sessions!
 	# tf.Tensor([[4.]], shape=(1, 1), dtype=float32)
 
-更多的细节请看第4课的PPT。
+你不用再担心这些：
 
+1. placeholder
+2. session
+3. control dependencies
+4. lazy loading
+5. {name，variable，op} scopes
+
+声明式TensorFlow代码：
+
+	x = tf.placeholder(tf.float32, shape=[1, 1])
+	m = tf.matmul(x, x)
+	
+	print(m)
+	# Tensor("MatMul:0", shape=(1, 1), dtype=float32)
+
+	with tf.Session() as sess:
+	  	m_out = sess.run(m, feed_dict={x: [[2.]]})
+		print(m_out)
+		# [[4.]]
+
+变成了：
+
+    x = [[2.]]  # No need for placeholders!
+	m = tf.matmul(x, x)
+	
+	print(m)  # No sessions!
+	# tf.Tensor([[4.]], shape=(1, 1), dtype=float32)
+
+### 梯度
+Eager execution已经内建自动微分功能。
+
+Eager模式下：
+
+- 每个运算都被记录
+- 通过回放这些记录来计算梯度
+	- 反向传播
+
+例子：
+
+    def square(x):
+		return x ** 2
+    
+    	grad = tfe.gradients_function(square)
+    
+    	print(square(3.))# tf.Tensor(9., shape=(), dtype=float32)
+    	print(grad(3.))  # [tf.Tensor(6., shape=(), dtype=float32))]
+
+
+### 一个运算的集合
+
+**TensorFlow = 运算内核 + 执行**
+
+- 原来的计算图构建方式： 使用Session执行运算的集合
+- Eager execution方式：用Python执行运算的集合
+
+## Eager模式的Huber回归
+
+ Huber回归的代码在[这里](https://github.com/cnscott/Stanford-CS20si/blob/master/examples/04_linreg_eager.py)查看。
+
+	""" Starter code for a simple regression example using eager execution.
+	Created by Akshay Agrawal (akshayka@cs.stanford.edu)
+	CS20: "TensorFlow for Deep Learning Research"
+	cs20.stanford.edu
+	Lecture 04
+	"""
+	import time
+	
+	import tensorflow as tf
+	import tensorflow.contrib.eager as tfe
+	import matplotlib.pyplot as plt
+	
+	import utils
+	
+	DATA_FILE = 'data/birth_life_2010.txt'
+	
+	# In order to use eager execution, `tfe.enable_eager_execution()` must be
+	# called at the very beginning of a TensorFlow program.
+	tfe.enable_eager_execution()
+	
+	# Read the data into a dataset.
+	data, n_samples = utils.read_birth_life_data(DATA_FILE)
+	dataset = tf.data.Dataset.from_tensor_slices((data[:,0], data[:,1]))
+	
+	# Create variables.
+	w = tfe.Variable(0.0)
+	b = tfe.Variable(0.0)
+	
+	# Define the linear predictor.
+	def prediction(x):
+	  return x * w + b
+	
+	# Define loss functions of the form: L(y, y_predicted)
+	def squared_loss(y, y_predicted):
+	  return (y - y_predicted) ** 2
+	
+	def huber_loss(y, y_predicted, m=1.0):
+	  """Huber loss."""
+	  t = y - y_predicted
+	  # Note that enabling eager execution lets you use Python control flow and
+	  # specificy dynamic TensorFlow computations. Contrast this implementation
+	  # to the graph-construction one found in `utils`, which uses `tf.cond`.
+	  return t ** 2 if tf.abs(t) <= m else m * (2 * tf.abs(t) - m)
+	
+	def train(loss_fn):
+	  """Train a regression model evaluated using `loss_fn`."""
+	  print('Training; loss function: ' + loss_fn.__name__)
+	  optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.01)
+	
+	  # Define the function through which to differentiate.
+	  def loss_for_example(x, y):
+	    return loss_fn(y, prediction(x))
+	
+	  # `grad_fn(x_i, y_i)` returns (1) the value of `loss_for_example`
+	  # evaluated at `x_i`, `y_i` and (2) the gradients of any variables used in
+	  # calculating it.
+	  grad_fn = tfe.implicit_value_and_gradients(loss_for_example)
+	
+	  start = time.time()
+	  for epoch in range(100):
+	    total_loss = 0.0
+	    for x_i, y_i in tfe.Iterator(dataset):
+	      loss, gradients = grad_fn(x_i, y_i)
+	      # Take an optimization step and update variables.
+	      optimizer.apply_gradients(gradients)
+	      total_loss += loss
+	    if epoch % 10 == 0:
+	      print('Epoch {0}: {1}'.format(epoch, total_loss / n_samples))
+	  print('Took: %f seconds' % (time.time() - start))
+	  print('Eager execution exhibits significant overhead per operation. '
+	        'As you increase your batch size, the impact of the overhead will '
+	        'become less noticeable. Eager execution is under active development: '
+	        'expect performance to increase substantially in the near future!')
+	
+	train(huber_loss)
+	plt.plot(data[:,0], data[:,1], 'bo')
+	# The `.numpy()` method of a tensor retrieves the NumPy array backing it.
+	# In future versions of eager, you won't need to call `.numpy()` and will
+	# instead be able to, in most cases, pass Tensors wherever NumPy arrays are
+	# expected.
+	plt.plot(data[:,0], data[:,0] * w.numpy() + b.numpy(), 'r',
+	         label="huber regression")
+	plt.legend()
+	plt.show()
