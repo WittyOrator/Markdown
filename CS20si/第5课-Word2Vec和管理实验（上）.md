@@ -1,4 +1,4 @@
-# 第5课:Word2vec和管理实验（上）
+# 第5课: Word2vec和实验管理(上)
 ---
 我们已经建立了几个非常简单的模型，它们只需要几分钟就能训练完毕。如果要训练更复杂的模型，我们需要一些更多的工具。在这节课中，我们将介绍模型库、变量共享、模型共享以及如何管理你的实验。我们将会用word2vec作为例子演示这些。
 
@@ -31,7 +31,7 @@ Tomas Mikolov带领的研究团队提出的word2vec是一组用来做词嵌入�
 
 ## Softmax，负采样（Negative Sampling）和NCE（Noise Contrastive Estimation）
 
-获得可能的邻近词的分布，在理论上，我们经常用softmax。Softmax将一组随机值\\(x_i\\)映射成一组和为1的概率值\\(p_i\\)。在这种情况下，\\(softmax(x_i)\\)表示\\(x_i\\)是指定的中心词的邻近词的概率。
+获得可能的邻近词的分布，在理论上，我们经常用softmax。Softmax将一组随机值$x_i$映射成一组和为1的概率值$p_i$。在这种情况下，$softmax(x_i)$表示$x_i$是指定的中心词的邻近词的概率。
 
 $$softmax(x_i) = exp(x_i) / ∑_i exp(x_i)$$
 
@@ -39,7 +39,7 @@ $$softmax(x_i) = exp(x_i) / ∑_i exp(x_i)$$
 
 这里有两个主要的方法可以规避这个瓶颈：分层softmax（hierarchical softmax）和基于采样的softmax（sample-based softmax）。Mikolov团队在他们的论文中展示了负采样加速了skip-gram模型的训练，并对比了更复杂的分层softmax。
 
-负采样顾名思义属于基于采样的方法族，这个方法族还包括重要性采样（importance sampling）和目标采样（target sampling）。负采样是一种叫做Noise Contrastive Estimation（NCE）方法的简化模型。负采样对产生的噪声样本数量\\(k\\)和噪声样本分布\\(Q\\)作了一定的假设，例如\\(kQ(w)=1\\)，这样可以简化计算。更多的细节可以看Sebastian Rudder的[On word embeddings - Part 2: Approximating the Softmax](http://ruder.io/word-embeddings-softmax/)和Chris Dyer的[Notes on Noise Contrastive Estimation and Negative Sampling](http://demo.clab.cs.cmu.edu/cdyer/nce_notes.pdf)。
+负采样顾名思义属于基于采样的方法族，这个方法族还包括重要性采样（importance sampling）和目标采样（target sampling）。负采样是一种叫做Noise Contrastive Estimation（NCE）方法的简化模型。负采样对产生的噪声样本数量$k$和噪声样本分布$Q$作了一定的假设，例如$kQ(w)=1$，这样可以简化计算。更多的细节可以看Sebastian Rudder的[On word embeddings - Part 2: Approximating the Softmax](http://ruder.io/word-embeddings-softmax/)和Chris Dyer的[Notes on Noise Contrastive Estimation and Negative Sampling](http://demo.clab.cs.cmu.edu/cdyer/nce_notes.pdf)。
 
 虽然负采样对于学习词嵌入是有用的，但它并不能保证其导数趋向于softmax函数的梯度。相对来说NCE在噪声样本增加时就能提供这个保证。[Mnih and Teh(2012)](https://www.cs.toronto.edu/~amnih/papers/ncelm.pdf)表明25个噪声样本足以使其性能达到正规的softmax，且伴随45%的加速。因为这个原因，我们将会使用NCE。
 
@@ -48,7 +48,7 @@ $$softmax(x_i) = exp(x_i) / ∑_i exp(x_i)$$
 ## 数据集（Dataset）
 text8是2006年3月3日英语维基百科的文本的前100 MB，我们使用的文本已经花费大量时间进行预处理过，因为在这门课中主要的学习目标是TensorFlow。我们可以在[这里](http://mattmahoney.net/dc/text8.zip)下载这个数据集，课程的GitHub中的word_utils.py能够下载和读取这个文本。
 
-100MB的文本不足以训练好的词嵌入，但是足够看到一些有趣的联系。如果你用空格分隔这个文本可以获得17,005,207个标记，如果想获得更好的结果你应该使用fil9（维基百科的前\\(10^9\\)个字节），就像[Matt Mahoney的网站](https://cs.fit.edu/~mmahoney/compression/textdata.html)上描述的一样。
+100MB的文本不足以训练好的词嵌入，但是足够看到一些有趣的联系。如果你用空格分隔这个文本可以获得17,005,207个标记，如果想获得更好的结果你应该使用fil9（维基百科的前$10^9$个字节），就像[Matt Mahoney的网站](https://cs.fit.edu/~mmahoney/compression/textdata.html)上描述的一样。
 
 ## 实现word2vec
 

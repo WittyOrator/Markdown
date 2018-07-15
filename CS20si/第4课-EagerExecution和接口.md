@@ -1,4 +1,4 @@
-# 第4课:Eager Execution和接口
+# 第4课: Eager Execution和接口
 ---
 到现在为止我们在TensorFlow中实现了两个简单的模型：用出生率预测平均寿命的线性回归和MNIST上手写数字识别的逻辑回归。我们学习了TensorFlow程序的两个基本阶段：组装计算图和执行计算图。但是你如何能够直接使用Python用命令的方式执行TensorFlow运算呢？这可以大大降低调试我们TensorFlow模型的难度。
 
