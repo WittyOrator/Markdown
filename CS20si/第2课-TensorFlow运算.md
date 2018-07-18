@@ -1,5 +1,7 @@
 # 第2课: TensorFlow运算
----
+
+> [CS20si课程资料和代码Github地址](https://github.com/cnscott/Stanford-CS20si)
+
 注意：运算的介绍可能比较枯燥，但是是基础，之后会更有趣。
 
 ## 1. TensorBoard
