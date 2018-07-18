@@ -2,6 +2,17 @@
 
 > [CS20si课程资料和代码Github地址](https://github.com/cnscott/Stanford-CS20si)
 
+<!-- TOC -->
+
+- [第5课: Word2vec和实验管理(下)](#%E7%AC%AC5%E8%AF%BE-word2vec%E5%92%8C%E5%AE%9E%E9%AA%8C%E7%AE%A1%E7%90%86%E4%B8%8B)
+	- [管理实验](#%E7%AE%A1%E7%90%86%E5%AE%9E%E9%AA%8C)
+		- [tf.train.Saver()](#tftrainsaver)
+		- [tf.summary](#tfsummary)
+		- [控制随机性](#%E6%8E%A7%E5%88%B6%E9%9A%8F%E6%9C%BA%E6%80%A7)
+		- [Autodiff(TensorFlow是怎样计算梯度的)](#autodifftensorflow%E6%98%AF%E6%80%8E%E6%A0%B7%E8%AE%A1%E7%AE%97%E6%A2%AF%E5%BA%A6%E7%9A%84)
+
+<!-- /TOC -->
+
 ## 管理实验
 我们已经建立了一个word2vec模型，在使用一个小数据集时它看起来工作的很好。我们知道在一个大数据集上会消耗更长的时间，而且我们也知道训练更复杂的模型也会消耗大量的时间。例如，一个机器翻译模型可能需要几天时间，如果在一个单GPU上可能要几个月，很多计算机视觉和强化学习任务需要很长的时间和耐心。
 
@@ -173,7 +184,7 @@ loss柱状图
 
 	如果你不在乎计算图中每个运算的随机性，而只是想在另一个计算图中复制结果，你可以使用`tf.set_random_seed`。设置当前的TensorFlow随机种子只对当前的默认计算图有效。
 
-### Autodiff（TensorFlow是怎样计算梯度的）
+### Autodiff(TensorFlow是怎样计算梯度的)
 在目前我们所有建立的模型中，我们没有计算过一个梯度。我们所做的是建立一个前向传播模型，然后TensorFlow为我们做反向传播。
 
 TensorFlow使用所谓的反向模式来自动微分，它允许你用与计算原始函数大致相同的代价对一个函数求导，通过在图中创建额外的节点和边来计算梯度。例如你需要计算C对I的梯度，首先TensorFlow查看两个节点间的路径，然后从C反向移动到I。对于这条路径上的每个运算，都有一个节点被添加到计算图中，通过链式法则组合每个新加入节点的局部梯度。这个过程在TensorFlow白皮书中显示为：

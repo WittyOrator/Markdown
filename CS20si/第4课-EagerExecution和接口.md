@@ -2,6 +2,16 @@
 
 > [CS20si课程资料和代码Github地址](https://github.com/cnscott/Stanford-CS20si)
 
+<!-- TOC -->
+
+- [第4课: Eager Execution和接口](#%E7%AC%AC4%E8%AF%BE-eager-execution%E5%92%8C%E6%8E%A5%E5%8F%A3)
+	- [Eager execution](#eager-execution)
+		- [梯度](#%E6%A2%AF%E5%BA%A6)
+		- [一个运算的集合](#%E4%B8%80%E4%B8%AA%E8%BF%90%E7%AE%97%E7%9A%84%E9%9B%86%E5%90%88)
+	- [Eager模式的Huber回归](#eager%E6%A8%A1%E5%BC%8F%E7%9A%84huber%E5%9B%9E%E5%BD%92)
+
+<!-- /TOC -->
+
 到现在为止我们在TensorFlow中实现了两个简单的模型：用出生率预测平均寿命的线性回归和MNIST上手写数字识别的逻辑回归。我们学习了TensorFlow程序的两个基本阶段：组装计算图和执行计算图。但是你如何能够直接使用Python用命令的方式执行TensorFlow运算呢？这可以大大降低调试我们TensorFlow模型的难度。
 
 在这一课中，我们介绍Eager execution，用Eager模型重写我们的线性回归。

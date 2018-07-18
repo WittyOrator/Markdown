@@ -2,7 +2,23 @@
 
 > [CS20si课程资料和代码Github地址](https://github.com/cnscott/Stanford-CS20si)
 
-## 线性回归：根据出生率预测平均寿命
+<!-- TOC -->
+
+- [第3课: TensorFlow中的线性和逻辑回归](#第3课-tensorflow中的线性和逻辑回归)
+    - [线性回归: 根据出生率预测平均寿命](#线性回归-根据出生率预测平均寿命)
+        - [问题描述](#问题描述)
+        - [数据描述](#数据描述)
+        - [方法](#方法)
+        - [控制流: Huber loss](#控制流-huber-loss)
+        - [tf.data](#tfdata)
+        - [`tf.data`真的表现更好吗?](#tfdata真的表现更好吗)
+        - [优化器(Optimizers)](#优化器optimizers)
+        - [optimizer列表](#optimizer列表)
+    - [逻辑回归(Logistic Regression)和MNIST](#逻辑回归logistic-regression和mnist)
+
+<!-- /TOC -->
+
+## 线性回归: 根据出生率预测平均寿命
 让我们从一个简单的线性回归开始，我们将会建立一个十分简单的神经网络，它只有一层来表示自变量X和因变量Y之间的线性关系。
 
 ### 问题描述
@@ -82,7 +98,7 @@
 	
 	# Step 5: Profit!
 
-### 控制流：Huber loss
+### 控制流: Huber loss
 看看输出的图片，我们看到在下方中间的位置有一些离群点（噪声）：它们有低出生率但是也有低平均寿命。这些点将拟合线拉向它们，使模型表现得比较差，一种削弱离群点影响的方法是用Huber损失。直观上，平方损失的缺点是给离群点过大的权重，而Huber损失被设计为给予利群点更少的权重：
 
 ![](https://wikimedia.org/api/rest_v1/media/math/render/svg/21983befe82b2509d1bb8dfa1064a35b6031d508)
@@ -214,10 +230,10 @@ x,y都应该是tensor，但是记住这是因为TensorFlow和Numpy是无缝集�
 	dataset = dataset.map(lambda x: tf.one_hot(x, 10)) 
 	# convert each element of dataset to one_hot vector
 
-### `tf.data`真的表现更好吗？
+### `tf.data`真的表现更好吗?
 为了比较`tf.data`和`placeholder`的性能，我将每个模型跑了100次然后计算每个模型的平均用时。在我的Macbook Pro 2.7Ghz Intel Core I5 cpu上，placeholder平均用时为9.0527秒，tf.data平均用时为6.1228秒。tf.data比placeholder的性能提高了32.4%
 
-### 优化器（Optimizers）
+### 优化器(Optimizers)
 在前面的代码中，还有两行没有解释。
 
 	optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001).minimize(loss)
@@ -303,7 +319,7 @@ TensorFlow支持的optimizer列表在[这里](https://tensorflow.google.cn/api_g
 
 **TL;DR**:使用AdamOptimizer
 
-# 逻辑回归（Logistic Regression）和MNIST
+## 逻辑回归(Logistic Regression)和MNIST
 让我们在TensorFlow中构建一个逻辑回归模型来解决MNIST数据分类。
 
 MNIST（Mixed National Institute of Standards and Technology database）是一个用来训练大量图像处理的流行的数据集，它是一个手写数字的数据集。

@@ -2,6 +2,26 @@
 
 > [CS20si课程资料和代码Github地址](https://github.com/cnscott/Stanford-CS20si)
 
+<!-- TOC -->
+
+- [第5课: Word2vec和实验管理(上)](#第5课-word2vec和实验管理上)
+    - [Word2vec](#word2vec)
+    - [Softmax, 负采样(Negative Sampling)和NCE(Noise Contrastive Estimation)](#softmax-负采样negative-sampling和ncenoise-contrastive-estimation)
+    - [数据集(Dataset)](#数据集dataset)
+    - [实现word2vec](#实现word2vec)
+        - [第1阶段: 装配计算图](#第1阶段-装配计算图)
+        - [第2阶段: 执行运算](#第2阶段-执行运算)
+    - [接口: 怎样构建你的TensorFlow模型](#接口-怎样构建你的tensorflow模型)
+        - [第1阶段: 组装你的计算图](#第1阶段-组装你的计算图)
+        - [第2阶段: 执行运算](#第2阶段-执行运算-1)
+    - [可视化词嵌入](#可视化词嵌入)
+    - [变量共享](#变量共享)
+        - [命名空间(Name Scope)](#命名空间name-scope)
+        - [变量空间(Variable scope)](#变量空间variable-scope)
+        - [计算图集合(Graph collections)](#计算图集合graph-collections)
+
+<!-- /TOC -->
+
 我们已经建立了几个非常简单的模型，它们只需要几分钟就能训练完毕。如果要训练更复杂的模型，我们需要一些更多的工具。在这节课中，我们将介绍模型库、变量共享、模型共享以及如何管理你的实验。我们将会用word2vec作为例子演示这些。
 
 ## Word2vec
@@ -31,7 +51,7 @@ Tomas Mikolov带领的研究团队提出的word2vec是一组用来做词嵌入�
 
 ![](http://images.cnblogs.com/cnblogs_com/tech0ne/1247403/o_skip-gram-t-SNE.jpg)
 
-## Softmax，负采样（Negative Sampling）和NCE（Noise Contrastive Estimation）
+## Softmax, 负采样(Negative Sampling)和NCE(Noise Contrastive Estimation)
 
 获得可能的邻近词的分布，在理论上，我们经常用softmax。Softmax将一组随机值$x_i$映射成一组和为1的概率值$p_i$。在这种情况下，$softmax(x_i)$表示$x_i$是指定的中心词的邻近词的概率。
 
@@ -47,14 +67,14 @@ $$softmax(x_i) = exp(x_i) / ∑_i exp(x_i)$$
 
 注意例如负采样和NCE等基于采样的方法只在训练时有用，在预测时仍然需要计算完整的softmax以获得规范的概率。
 
-## 数据集（Dataset）
+## 数据集(Dataset)
 text8是2006年3月3日英语维基百科的文本的前100 MB，我们使用的文本已经花费大量时间进行预处理过，因为在这门课中主要的学习目标是TensorFlow。我们可以在[这里](http://mattmahoney.net/dc/text8.zip)下载这个数据集，课程的GitHub中的word_utils.py能够下载和读取这个文本。
 
 100MB的文本不足以训练好的词嵌入，但是足够看到一些有趣的联系。如果你用空格分隔这个文本可以获得17,005,207个标记，如果想获得更好的结果你应该使用fil9（维基百科的前$10^9$个字节），就像[Matt Mahoney的网站](https://cs.fit.edu/~mmahoney/compression/textdata.html)上描述的一样。
 
 ## 实现word2vec
 
-### 第1阶段：装配计算图
+### 第1阶段: 装配计算图
 
 - 建立数据集并用它生成样本
 
@@ -141,7 +161,7 @@ NCE很难用纯Python实现，TensorFlow已经为我们实现了：
 
     optimizer = tf.train.GradientDescentOptimizer(LEARNING_RATE).minimize(loss)
 
-### 第2阶段：执行运算
+### 第2阶段: 执行运算
 我们将会创建一个session来运行optimizer去最小化损失，然后为我们输出损失值。别忘了重新初始化你的迭代器！
 
 	with tf.Session() as sess:
@@ -159,17 +179,17 @@ NCE很难用纯Python实现，TensorFlow已经为我们实现了：
 
 你可以在课程的GitHub上的[word2vec.py](https://github.com/cnscott/Stanford-CS20si/blob/master/examples/04_word2vec.py)中看到完整的模型。
 
-## 接口：怎样构建你的TensorFlow模型
+## 接口: 怎样构建你的TensorFlow模型
 至今我们建立的所有的模型或多或少都有着相同的结构。
 
-### 第1阶段：组装你的计算图
+### 第1阶段: 组装你的计算图
 1. 导入数据（用tf.data或者placeholder）
 2. 定义权重
 3. 定义预测模型
 4. 定义损失函数loss
 5. 定义优化器optimizer
 
-### 第2阶段：执行运算
+### 第2阶段: 执行运算
 1. 初始化所有的模型变量
 2. 初始化迭代器/feed_dict
 3. 执行预测模型
@@ -272,7 +292,7 @@ NCE很难用纯Python实现，TensorFlow已经为我们实现了：
 请到课程GitHub的examples/04_word2vec_visualize.py中查看完整代码。
 
 ## 变量共享
-### 命名空间（Name Scope）
+### 命名空间(Name Scope)
 让我们给tensors命名然后看看在TensorBoard中我们的word2vec模型长什么样。
 
 ![](http://images.cnblogs.com/cnblogs_com/tech0ne/1247403/o_NameScope-Word2vec.jpg)
@@ -325,7 +345,7 @@ TensorBoard有三种类型的边：
 - 橙色实线箭头，表示哪个运算可以改变哪个运算 - 比如optimizer在BP中改变nce_weight、nce_bias和embed_matrix。
 - 虚线箭头.表示控制依赖 - 比如 nce_weight只能在init之后被执行。控制依赖还可以用tf.Graph.control_dependencies(control_inputs)声明。
 
-### 变量空间（Variable scope）
+### 变量空间(Variable scope)
 一个人们常问的问题是：“命名空间和变量空间有什么不同？”。它们全都是创建命名空间，而变量空间做的是有利于参数共享。让我们看看为什么我们需要变量共享。
 
 假设我们需要创建一个两个隐层的神经网络，然后我们用两个不同的输入x1和x2去调用这个神经网络。
@@ -391,7 +411,7 @@ TensorBoard有三种类型的边：
 
 现在只有一组变量了，都在变量空间呢`two_layers`中，它们接受了两个不同的输入x1和x2。`tf.variable_scope("name")`隐式的打开了`tf.name_scope("name")`。
 
-### 计算图集合（Graph collections）
+### 计算图集合(Graph collections)
 当你创建模型时，你可能想将你们的变量放在计算图的不同部分中，有时你想要一种简单的方法存取它们。`tf.get_collection`使你能够使用集合的名字作为关键字存取特定的变量集合，空间是变量空间。
 
 	tf.get_collection(
